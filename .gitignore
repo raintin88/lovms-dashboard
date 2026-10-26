@@ -1,0 +1,4 @@
+node_modules/
+run/
+.env
+.local-test-password

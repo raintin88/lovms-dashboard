@@ -1,0 +1,6 @@
+[
+ {"name":"#1003","createdAt":"2026-10-26T03:00:00Z","displayFinancialStatus":"PAID","cancelledAt":null,"test":false,"totalPriceSet":{"shopMoney":{"amount":"88.00","currencyCode":"USD"}},"shippingAddress":{"firstName":"Amy","city":"Austin","countryCodeV2":"US"},"lineItems":{"nodes":[{"title":"Solitaire Ring","quantity":1,"originalTotalSet":{"shopMoney":{"amount":"80.00"}}}]}},
+ {"name":"#1002","createdAt":"2026-10-22T10:00:00Z","displayFinancialStatus":"PAID","cancelledAt":null,"test":false,"totalPriceSet":{"shopMoney":{"amount":"120.00","currencyCode":"USD"}},"shippingAddress":{"firstName":"Bo","city":"Miami","countryCodeV2":"US"},"lineItems":{"nodes":[{"title":"Tennis Bracelet","quantity":1,"originalTotalSet":{"shopMoney":{"amount":"120.00"}}}]}},
+ {"name":"#1001","createdAt":"2026-10-10T10:00:00Z","displayFinancialStatus":"PAID","cancelledAt":null,"test":false,"totalPriceSet":{"shopMoney":{"amount":"60.00","currencyCode":"USD"}},"shippingAddress":null,"lineItems":{"nodes":[{"title":"Solitaire Ring","quantity":2,"originalTotalSet":{"shopMoney":{"amount":"60.00"}}}]}},
+ {"name":"#1000","createdAt":"2026-10-25T10:00:00Z","displayFinancialStatus":"REFUNDED","cancelledAt":"2026-10-25T11:00:00Z","test":false,"totalPriceSet":{"shopMoney":{"amount":"999.00","currencyCode":"USD"}},"shippingAddress":null,"lineItems":{"nodes":[]}}
+]

@@ -1,0 +1,10 @@
+{
+  "name": "lovms-dashboard",
+  "version": "3.0.0",
+  "private": true,
+  "description": "LOVMS 公司运转台 — password-protected bot-team dashboard (no dependencies)",
+  "main": "server.js",
+  "engines": { "node": ">=20" },
+  "scripts": { "start": "node server.js", "test": "node --test test/" },
+  "license": "UNLICENSED"
+}
