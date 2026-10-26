@@ -43,3 +43,8 @@ node --test test/        # 11 个测试，不连真实 Shopify
   - `POST /api/sync/ack` `{tasks:[{agent,id,rev}], accounts_changes:[cid], logs:[sid]}`
   - `POST /api/sync/status` `{tasks:[…]}`（box 回推任务状态）
 - box 端：`sync/box-sync.js`（每 60 秒），配置 `run/sync.env`（`REMOTE_URL=`、`SYNC_TOKEN=`，chmod 600，已 gitignore），启动 `run/start-sync.sh`，日志 `run/sync.log`。
+
+### Shopify 认证方式（二选一）
+- 推荐：Dev Dashboard 应用 + client credentials：设置 `SHOPIFY_CLIENT_ID`、`SHOPIFY_CLIENT_SECRET`（服务器自动换取 24 小时令牌，内存缓存，过期前或 401 时自动刷新）。权限：read_orders、read_products、read_reports、read_analytics。
+- 或：固定 Admin 令牌 `SHOPIFY_ADMIN_TOKEN`。
+- 若订单收货地址属受保护客户数据而不可读，会自动去掉该字段重试，最近订单只显示订单号。

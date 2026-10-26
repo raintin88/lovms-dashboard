@@ -63,3 +63,18 @@ test('overview 含 agent_meta（真实活动，示例日志不计）与 kb_stats
   for (const a of ['ceo', 'shopify', 'facebook', 'ops-kb']) assert.ok(d.agent_meta[a] && d.agent_meta[a].tasks, a);
   assert.equal(d.agent_meta.ceo.last_log_ts, null); assert.equal(d.agent_meta.facebook.last_report.date, '2026-10-23'); assert.equal(d.agent_meta.facebook.last_report.example, true);
   assert.ok(d.agent_meta.pinterest.tasks.queued >= 1); assert.ok(d.kb_stats.playbooks >= 1); assert.match(d.today, /^\d{4}-\d{2}-\d{2}$/); });
+test('client credentials：换令牌（表单编码）、缓存、401 时刷新、错误里不泄露密钥', async () => {
+  const env = { SHOPIFY_SHOP: 'qw1wau-ty.myshopify.com', SHOPIFY_CLIENT_ID: 'cid123', SHOPIFY_CLIENT_SECRET: 'shpss_TOPSECRET' }; S._resetCache();
+  let ex = 0, gq = 0, valid = 'tokA', bodies = [];
+  const fx = async (u, o) => { if (u.endsWith('/admin/oauth/access_token')) { ex++; bodies.push(o); return { ok: true, json: async () => ({ access_token: ex === 1 ? 'tokA' : 'tokB', expires_in: 86399, scope: 'read_orders' }) }; }
+    gq++; if (o.headers['X-Shopify-Access-Token'] !== valid) return { ok: false, status: 401, json: async () => ({}) };
+    const q = JSON.parse(o.body).query; return { ok: true, json: async () => ({ data: q.includes('orders(') ? { orders: { pageInfo: { hasNextPage: false }, nodes: [] } } : q.includes('shopifyqlQuery') ? { shopifyqlQuery: null } : { active: { count: 97 }, draft: { count: 1 }, all: { count: 98 }, shop: { name: 'LOVMS' } } }) }; };
+  const t0 = Date.parse('2026-10-26T12:00:00+08:00');
+  let d = await S.summary({ env, fetchImpl: fx, now: t0, force: true }); assert.equal(d.mode, 'live'); assert.deepEqual(d.products, { active: 97, draft: 1, total: 98 }); assert.equal(ex, 1);
+  assert.equal(bodies[0].headers['Content-Type'], 'application/x-www-form-urlencoded'); const ps = new URLSearchParams(bodies[0].body); assert.equal(ps.get('grant_type'), 'client_credentials'); assert.equal(ps.get('client_id'), 'cid123');
+  d = await S.summary({ env, fetchImpl: fx, now: t0 + 3600e3, force: true }); assert.equal(ex, 1, '令牌应被缓存');
+  valid = 'tokB'; d = await S.summary({ env, fetchImpl: fx, now: t0 + 7200e3, force: true }); assert.equal(d.mode, 'live'); assert.equal(ex, 2, '401 后应刷新一次');
+  valid = 'tokB'; await S.summary({ env, fetchImpl: fx, now: t0 + 27 * 3600e3, force: true }); assert.equal(ex, 3, '快过期应重新换取');
+  S._resetCache(); d = await S.summary({ env, fetchImpl: async () => { throw new Error('boom shpss_TOPSECRET cid123'); }, now: t0, force: true });
+  assert.equal(d.connected, false); assert.ok(!JSON.stringify(d).includes('TOPSECRET'));
+  S._resetCache(); d = await S.summary({ env, fetchImpl: async u => u.endsWith('access_token') ? { ok: false, status: 400, json: async () => ({}) } : null, now: t0, force: true }); assert.equal(d.connected, false); assert.match(d.hint, /令牌换取失败/); });
