@@ -37,7 +37,7 @@ async function cycle() {
   if (ack.tasks.length || ack.accounts_changes.length || ack.logs.length) await call('POST', '/api/sync/ack', ack);
   // 2) 推快照（远端哈希不同才推；远端重启丢盘也会自动补推）
   const snap = snapshot(), h = await fetch(URL0 + '/healthz', { signal: AbortSignal.timeout(90e3) }).then(r => r.json()).catch(() => ({}));
-  if (!h.snapshot || h.snapshot.hash !== snap.hash) { const r = await call('POST', '/api/sync/push', { mode: 'replace', hash: snap.hash, files: snap.files }); log('pushed snapshot', r.written, 'files', r.accounts_skipped ? '(accounts.json skipped: pending web edits)' : ''); }
+  if (!h.snapshot || h.snapshot.hash !== snap.hash) { const r = await call('POST', '/api/sync/push', { mode: 'replace', enc: 'b64', hash: snap.hash, files: Object.fromEntries(Object.entries(snap.files).map(([k, v]) => [k, Buffer.from(v, 'utf8').toString('base64')])) }); log('pushed snapshot', r.written, 'files', r.accounts_skipped ? '(accounts.json skipped: pending web edits)' : ''); }
   // 3) 推任务状态
   const ts = localTasks().map(t => ({ id: t.id, agent: t.agent, status: t.status, result_note: t.result_note, text: t.text, priority: t.priority, requires_approval: t.requires_approval, created_at: t.created_at, created_by: t.created_by }));
   const sh = crypto.createHash('sha256').update(JSON.stringify(ts)).digest('hex'); if (sh !== lastStatusHash || ack.tasks.length) { await call('POST', '/api/sync/status', { tasks: ts }); lastStatusHash = sh; }
