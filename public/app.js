@@ -14,6 +14,7 @@ const ROLE = { // 岗位说明（文字，不含数字）
   tiktok: ['TikTok 运营', '短视频内容与账号增长', ['选题与脚本', '发布与互动', '次日数据小结']],
   pinterest: ['Pinterest 运营', 'Pin 图与看板，带来自然流量', ['Pin 图制作', '看板与关键词', '次日数据小结']],
   fulfillment: ['履约 · 售后', '发货、退换与客服邮件', ['订单履约跟踪', '退换货处理', '客服邮箱回复']],
+  'influencer-bd': ['达人 BD', '达人筛选、合作外联与进度管理', ['达人筛选与分层', '外联草稿（先过目）', '合作进度跟踪']],
   'ops-kb': ['运营 · 知识库', '维护共享知识库与数据规范', ['整理知识库', '校验数据文件', '归档日报']] };
 async function get(u) { const r = await fetch(u, { credentials: 'same-origin' }); if (r.status === 401) { login(); throw 0; } return r.json(); }
 async function post(u, b) { const r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b || {}) }); if (r.status === 401 && u !== '/api/login') { login(); throw 0; } return { status: r.status, data: await r.json() }; }
@@ -47,7 +48,7 @@ function md(src) { // minimal, escaped markdown
   return h;
 }
 // ---------- 视觉组件 ----------
-const FACE = { ceo: 'crown', shopify: 'bag', 'seo-geo': 'glass', facebook: 'chat', tiktok: 'note', pinterest: 'pin', fulfillment: 'box', 'ops-kb': 'book' };
+const FACE = { ceo: 'crown', shopify: 'bag', 'seo-geo': 'glass', 'influencer-bd': 'chat', facebook: 'chat', tiktok: 'note', pinterest: 'pin', fulfillment: 'box', 'ops-kb': 'book' };
 function avatar(id, color, size = 56) {
   const c = /^#[0-9a-fA-F]{3,8}$/.test(color || '') ? color : '#2563EB', k = FACE[id];
   const acc = { crown: '<path d="M20 14l5 5 7-8 7 8 5-5-2 10H22z" fill="#FACC15" stroke="#CA8A04" stroke-width="1"/>',
@@ -145,7 +146,7 @@ async function agentsPage() { skel(); const d = await get('/api/overview'); AG =
   app.querySelectorAll('.qb').forEach(b => b.onclick = () => { const q = Q[+b.dataset.q]; sessionStorage.setItem('prefill', JSON.stringify({ agent: q[1], text: q[2] })); location.hash = '#/tasks'; });
   countUp(); drawOrg(); }
 // ---------- 组织图 ----------
-const GROUPS = [['渠道运营', ['facebook', 'tiktok', 'pinterest']], ['SEO', ['seo-geo']], ['Shopify', ['shopify']], ['履约售后', ['fulfillment']], ['运营知识库', ['ops-kb']]];
+const GROUPS = [['渠道运营', ['facebook', 'tiktok', 'pinterest', 'influencer-bd']], ['SEO', ['seo-geo']], ['Shopify', ['shopify']], ['履约售后', ['fulfillment']], ['运营知识库', ['ops-kb']]];
 function teamCard(a, st, ts, ceo) { const r = ROLE[a.id] || [a.id, '', []], mine = ts.filter(t => t.agent === a.id), n = k => mine.filter(t => t.status === k).length;
   return `<a class="card agent tm ${ceo ? 'ceo' : ''}" data-id="${esc(a.id)}" data-st="${esc(st ? st.key : 'idle')}" href="#/agent/${esc(a.id)}"><div class="tmh">${avatar(a.id, a.color, ceo ? 60 : 48)}<div><h3>${esc(a.name)} ${stat(st)}</h3><span class="pill">${esc(r[0])}</span></div></div>
   <p class="muted">${esc(r[1])}</p><ul>${r[2].map(x => `<li>${esc(x)}</li>`).join('')}</ul>
@@ -270,7 +271,7 @@ try { if (localStorage.getItem('lovms_theme') === 'light') document.body.classLi
 addEventListener('resize', () => { clearTimeout(bg.t); bg.t = setTimeout(bg, 300); });
 document.addEventListener('visibilitychange', () => document.hidden ? cancelAnimationFrame(raf) : bg());
 // =================== v3「公司运转台」（仿参考视频布局） ===================
-const DOM = { shopify: ['电商', '#FB923C'], facebook: ['Facebook/IG', '#60A5FA'], tiktok: ['TikTok', '#F472B6'], pinterest: ['Pinterest', '#F87171'], 'seo-geo': ['SEO/GEO', '#34D399'], fulfillment: ['履约售后', '#FACC15'], 'ops-kb': ['运营·知识库', '#A78BFA'] };
+const DOM = { shopify: ['电商', '#FB923C'], facebook: ['Facebook/IG', '#60A5FA'], tiktok: ['TikTok', '#F472B6'], pinterest: ['Pinterest', '#F87171'], 'seo-geo': ['SEO/GEO', '#34D399'], 'influencer-bd': ['达人 BD', '#22D3EE'], fulfillment: ['履约售后', '#FACC15'], 'ops-kb': ['运营·知识库', '#A78BFA'] };
 const COLS = Object.keys(DOM), CEO_C = '#2DD4BF', FOUNDER_C = '#F97316';
 let ST = null; // 全局数据缓存
 async function load(force) { if (!force && ST && Date.now() - ST.at < 30e3) return ST;

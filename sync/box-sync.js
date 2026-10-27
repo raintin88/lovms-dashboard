@@ -9,7 +9,7 @@ const EVERY = (+process.env.SYNC_INTERVAL || 60) * 1000, ONCE = process.argv.inc
 if (!URL0.startsWith('https://') && !/^http:\/\/127\.0\.0\.1/.test(URL0)) { console.error('REMOTE_URL must be https (or http://127.0.0.1 for tests)'); process.exit(1); }
 if (!TOKEN) { console.error('SYNC_TOKEN missing'); process.exit(1); }
 const { okPath } = require('../lib/sync');
-const AGENTS = ['ceo', 'shopify', 'seo-geo', 'facebook', 'tiktok', 'pinterest', 'fulfillment', 'ops-kb'], TASK_RE = /^[TQ]-\d{8}-\d{6}(-\d+)?$/;
+const AGENTS = ['ceo', 'shopify', 'seo-geo', 'facebook', 'tiktok', 'pinterest', 'fulfillment', 'ops-kb', 'influencer-bd'], TASK_RE = /^[TQ]-\d{8}-\d{6}(-\d+)?$/;
 const log = (...a) => console.log(new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 19).replace('T', ' '), ...a);
 async function call(method, p, body) { const r = await fetch(URL0 + p, { method, headers: { Authorization: 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined, signal: AbortSignal.timeout(90e3) });
   const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(`${method} ${p} → ${r.status} ${j.error || ''}`); return j; }
